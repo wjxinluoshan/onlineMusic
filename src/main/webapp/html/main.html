@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>主页</title>
+  <link rel="stylesheet" href="/layui/css/layui.css">
+  <link type="images/x-icon" rel="shortcut icon" href="/img/logo.png">
+  <script src="/js/jquery-3.4.1.min.js"></script>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+  <div class="layui-header">
+    <div class="layui-logo">
+      <img src="/img/logo.png" height="40" style="border-radius: 50%;"/>
+    </div>
+    <!-- 头部区域（可配合layui已有的水平导航） -->
+    <ul class="layui-nav layui-layout-left">
+      <li class="layui-nav-item">
+        华水在线音乐系统
+      </li>
+    </ul>
+    <ul class="layui-nav layui-layout-right">
+      <li class="layui-nav-item">
+        <a href="javascript:;">
+          <img id="img_user_id" src="/img/logo.png" class="layui-nav-img">
+          <span id="username_span_id">贤心</span>
+        </a>
+        <dl class="layui-nav-child">
+          <dd><a href="">基本资料</a></dd>
+          <dd><a href="">安全设置</a></dd>
+        </dl>
+      </li>
+      <li class="layui-nav-item"><a href="">退了</a></li>
+    </ul>
+  </div>
+
+  <div class="layui-side layui-bg-black">
+    <div class="layui-side-scroll">
+      <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+      <ul class="layui-nav layui-nav-tree" lay-filter="test">
+        <li class="layui-nav-item layui-nav-itemed">
+          <a class="" href="javascript:;">在线音乐</a>
+          <dl class="layui-nav-child">
+            <dd><a href="/html/online_list.html" target="mainFrame">音乐列表</a></dd>
+            <dd><a href="javascript:;">在线FM</a></dd>
+          </dl>
+        </li>
+        <li class="layui-nav-item">
+          <a href="javascript:;">我的收藏</a>
+          <dl class="layui-nav-child">
+            <dd><a href="javascript:;">收藏列表</a></dd>
+            <dd><a href="javascript:;">创建列表</a></dd>
+          </dl>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="layui-body">
+    <!-- 内容主体区域 -->
+    <iframe name="mainFrame" width="100%" height="100%" frameborder="0"></iframe>
+  </div>
+
+  <div class="layui-footer">
+    <!-- 底部固定区域 -->
+    © hsmusic.com - 享受视听盛宴
+  </div>
+</div>
+<script src="/layui/layui.js"></script>
+<script>
+  /**
+   * 加载username and picture_url
+   * @type {string}
+   */
+  if (!window.location.href.includes('=')) {
+    window.location.href = '/html/login.html';
+  }
+  var data = window.location.href.split("=")[1].split('%20');
+  data = data[data.length - 1];
+  var SPLITSTRING = " olinemusic ";
+  $.ajax({
+    method: 'post',
+    url: '/logic/queryInfo',
+    data: {
+      data: data
+    },
+    success: function (data) {
+      if (data !== 'null') {
+        let infoArr = data.split(SPLITSTRING)
+        $('#username_span_id').html(infoArr[0]);
+        $('#img_user_id').attr('src', infoArr[1]);
+      } else {
+        window.location.href = '/html/login.html';
+      }
+    },
+    error: function () {
+      alert('信息加载失败！！！');
+    }
+  })
+
+</script>
+</body>
+</html>

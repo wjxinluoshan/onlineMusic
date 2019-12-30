@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <link rel="stylesheet" href="/layui/css/layui.css"/>
+  <script src="/js/vue.js"></script>
+  <script src="/js/jquery-3.4.1.min.js"></script>
+</head>
+<body style="padding: 10px;">
+
+<div class="layui-form" style="margin-bottom: 10px;">
+  <label>音乐分类</label>
+  <button id="button1" class="layui-btn  layui-btn-sm" type="button">华语经典</button>
+  <button id="button2" class="layui-btn  layui-btn-sm" type="button">流行音乐</button>
+  <button id="button3" class="layui-btn  layui-btn-sm" type="button">抖音热歌</button>
+  <button id="button4" class="layui-btn  layui-btn-sm" type="button">英文经典</button>
+</div>
+
+<div class="layui-form">
+  <div class="layui-inline">
+    <div class="layui-input-inline">
+      <input id="search_content_input_id" name="phone" class="layui-input" placeholder="请输入歌手名/歌曲名"
+             style="width: 280px; padding: 2px; height: 30px;">
+    </div>
+    <div class="layui-input-inline">
+      <input id="search_song_input_id" type="button" class="layui-btn layui-btn-warm layui-btn-sm"
+             value="搜索"/>
+    </div>
+  </div>
+</div>
+
+<div class="layui-form">
+  <table class="layui-table" id="msuic_list_tbody_id">
+    <colgroup>
+      <col width="150">
+      <col width="150">
+      <col width="200">
+      <col width="200">
+      <col>
+    </colgroup>
+    <thead>
+    <tr>
+      <th v-for="item in thead">{{item}}</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr v-for="item in itemMusic">
+      <td v-for="i in item">{{i}}</td>
+      <td>
+        <button :id="item[0]" class="layui-btn" @click="playMusic(item[0],item[1])">播放</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <audio id="music_audio_id" controls="controls" style="display: none"></audio>
+  <div id="show_time_div_id">
+    <table class="layui-table">
+      <tbody>
+      <tr>
+        <th>{{songName}}</th>
+        <th>总时长： {{time}} 当前时长：{{currentTime}}</th>
+        <!--        <th >歌曲名</th>-->
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+<script>
+  const show_time_div_id = new Vue({
+    el: '#show_time_div_id',
+    data: {
+      songName: '歌曲名',
+      time: '00:00',
+      currentTime: '00:00',
+      timer: '',
+      second: 0,
+      totalSecond: 0
+    },
+    methods: {
+      currentTimeStart: function () {
+        this.timer = setInterval(function () {
+          show_time_div_id.second++;
+          if (show_time_div_id.second === show_time_div_id.totalSecond) {
+            show_time_div_id.currentTimeStop();
+            show_time_div_id.currentTime = '00:00';
+            show_time_div_id.second=0;
+          }
+          let min = parseInt(show_time_div_id.second / 60);
+          let second = parseInt(show_time_div_id.second - min * 60);
+          if (second < 10) {
+            show_time_div_id.currentTime = min + ":0" + second
+          } else {
+            show_time_div_id.currentTime = min + ":" + second
+          }
+        }, 1000)
+      },
+      currentTimeStop: function () {
+        if (this.timer) {
+          clearInterval(this.timer);
+        }
+      }
+    }
+  });
+</script>
+<script>
+
+  $('#search_song_input_id').on('click', function () {
+    postRequestMusic($('#search_content_input_id').val().toString());
+  });
+  for (let i = 1; i < 5; i++) {
+    $('#button' + i).on('click', function () {
+      /**
+       * 进行在线音乐列表的获取
+       */
+      postRequestMusic($(this).html());
+    });
+  }
+
+  function postRequestMusic(data) {
+    $.ajax({
+      method: 'post',
+      url: '/logic/lineMusic',
+      data: {
+        data: data
+      },
+      success: function (data) {
+        resolveJson(data);
+      }, error: function (data) {
+        console.log(data);
+      }
+    })
+  }
+</script>
+<script>
+  const msuic_list_tbody_id_vue = new Vue({
+    el: '#msuic_list_tbody_id',
+    data: {
+      thead: ['音乐编号', '歌曲名', '专辑名', '...'],
+      itemMusic: [],
+      player: new Object(),
+      previousPlayer: '',
+    },
+    methods: {
+      playMusic: function (id, songName) {
+        let buttonHtml = $('#' + id).html();
+        if (buttonHtml === '播放') {
+          show_time_div_id.songName = songName;
+          if (this.previousPlayer.innerHTML) {
+            this.previousPlayer.innerHTML = '播放';
+          }
+          this.player = document.getElementById("music_audio_id")
+          this.player.src = 'https://music.163.com/song/media/outer/url?id=' + id;
+          this.player.onloadedmetadata = function () {
+            show_time_div_id.currentTime = '00:00';
+            show_time_div_id.second=0;
+            let totalSecond = this.duration;
+            show_time_div_id.totalSecond = parseInt(totalSecond);
+            let min = parseInt(totalSecond / 60);
+            let second = parseInt(totalSecond - min * 60);
+            if (second < 10) {
+              show_time_div_id.time = min + ":0" + second
+            } else {
+              show_time_div_id.time = min + ":" + second
+            }
+          };
+          this.player.play();
+          show_time_div_id.currentTimeStop();
+          show_time_div_id.currentTimeStart();
+          $('#' + id).html('暂停播放');
+          this.previousPlayer = document.getElementById(id);
+        } else if (buttonHtml === '暂停播放') {
+          show_time_div_id.currentTimeStop();
+          this.pauseMusic();
+          $('#' + id).html('继续播放');
+        } else {
+          this.secondPlayMusic();
+          $('#' + id).html('暂停播放');
+          show_time_div_id.currentTimeStart();
+        }
+
+      },
+      secondPlayMusic: function () {
+        this.player.play();
+      },
+      pauseMusic: function () {
+        this.player.pause();
+      }
+
+    }
+  });
+
+  function resolveJson(resultObj) {
+    let songs = resultObj.result.songs;
+    msuic_list_tbody_id_vue.itemMusic.length = 0;
+    for (let index = 0; index < songs.length; index++) {
+      let arr = [];
+      arr.push(songs[index].id);
+      arr.push(songs[index].name);
+      arr.push(songs[index].album.name);
+      msuic_list_tbody_id_vue.itemMusic.push(arr);
+    }
+
+  }
+
+  postRequestMusic('流行音乐');
+</script>
+</html>

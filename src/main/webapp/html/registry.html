@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>注册</title>
+  <link type="images/x-icon" rel="shortcut icon" href="/img/logo.png">
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap.css">
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap.css.map">
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap-grid.css">
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap-grid.css.map">
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap-reboot.css">
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap-reboot.css.map">
+
+  <script src="/js/vue.js"></script>
+  <!--  jQuery-->
+  <script src="/js/jquery-3.4.1.min.js"></script>
+  <script src="/js/popper.min.js"></script>
+  <script src="/js/bootstrap.bundle.js"></script>
+  <script src="/js/bootstrap.bundle.js.map"></script>
+
+
+  <style>
+    @import url(https://fonts.googleapis.com/css?family=Roboto:300);
+
+    .login-page {
+      width: 360px;
+      padding: 8% 0 0;
+      margin: auto;
+    }
+
+    .form {
+      position: relative;
+      z-index: 1;
+      background: #FFFFFF;
+      max-width: 360px;
+      margin: 0 auto 100px;
+      padding: 45px;
+      text-align: center;
+      box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+    }
+
+    .form input {
+      font-family: "Roboto", sans-serif;
+      outline: 0;
+      background: #f2f2f2;
+      width: 100%;
+      border: 0;
+      margin: 0 0 15px;
+      padding: 15px;
+      box-sizing: border-box;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .form button {
+      font-family: "Roboto", sans-serif;
+      text-transform: uppercase;
+      outline: 0;
+      background: #4CAF50;
+      width: 100%;
+      border: 0;
+      padding: 15px;
+      color: #FFFFFF;
+      font-size: 14px;
+      -webkit-transition: all 0.3 ease;
+      transition: all 0.3 ease;
+      cursor: pointer;
+    }
+
+    .form button:hover,
+    .form button:active,
+    .form button:focus {
+      background: #43A047;
+    }
+
+    .form .message {
+      margin: 15px 0 0;
+      color: #b3b3b3;
+      font-size: 12px;
+    }
+
+    .form .message a {
+      color: #4CAF50;
+      text-decoration: none;
+    }
+
+    .form .register-form {
+      display: none;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+
+    .container:before,
+    .container:after {
+      content: "";
+      display: block;
+      clear: both;
+    }
+
+    .container .info {
+      margin: 50px auto;
+      text-align: center;
+    }
+
+    .container .info h1 {
+      margin: 0 0 15px;
+      padding: 0;
+      font-size: 36px;
+      font-weight: 300;
+      color: #1a1a1a;
+    }
+
+    .container .info span {
+      color: #4d4d4d;
+      font-size: 12px;
+    }
+
+    .container .info span a {
+      color: #000000;
+      text-decoration: none;
+    }
+
+    .container .info span .fa {
+      color: #EF3B3A;
+    }
+
+    body {
+      background: #76b852;
+      /* fallback for old browsers */
+      background: -webkit-linear-gradient(right, #76b852, #8DC26F);
+      background: -moz-linear-gradient(right, #76b852, #8DC26F);
+      background: -o-linear-gradient(right, #76b852, #8DC26F);
+      background: linear-gradient(to left, #76b852, #8DC26F);
+      font-family: "Roboto", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  </style>
+</head>
+
+<body>
+<div class="login-page">
+  <div class="form">
+    <div id="form" class="login-form">
+      <input id="0" type="text" placeholder="用户名" name="0"/>
+      <input id="1" type="password" placeholder="密码" name="1"/>
+      <input id="2" type="text" placeholder="昵称" name="2"/>
+      <input id="3" type="text" placeholder="性别" name="3"/>
+      <input id="4" type="text" placeholder="图片链接" name="4"/>
+      <input id="5" type="text" placeholder="年龄" name="5"/>
+      <input id="6" type="text" placeholder="省份" name="6 "/>
+      <input id="7" type="text" placeholder="城市" name="7"/>
+      <input id="8" type="text" placeholder="地区" name="8"/>
+      <input id="9" type="text" placeholder="邮箱" name="9"/>
+      <input id="10" type="text" placeholder="手机号" name="10"/>
+      <input id="11" type="text" placeholder="备注" name="11"/>
+      <button id="confirmButtonId">确认</button>
+    </div>
+  </div>
+</div>
+</body>
+<script>
+  var splitString = " olinemusic ";
+  var passData = '';
+  var registry = false;
+  $('#confirmButtonId').on('click', function () {
+    if (registry) {
+      return;
+    }
+    for (let id = 0; id < 12; id++) {
+      let value = $('#' + id).val().trim();
+      if (!value) {
+        alert("请完善信息!!!");
+        passData = '';
+        return;
+      }
+      if (id === 0) {
+        passData += value;
+      } else {
+        passData += (splitString + value);
+      }
+    }
+    registry = true;
+    $.ajax({
+      method: 'post',
+      url: '/logic/registry',
+      data: {
+        data: passData
+      },
+      success: function (data) {
+        registry = false;
+        passData='';
+        if (data === '0') {
+          alert("注册失败!!!");
+        } else {
+          window.location.href = '/html/login.html';
+        }
+      },
+      error: function () {
+        registry = false;
+        passData='';
+      }
+    })
+  });
+</script>
+</html>
